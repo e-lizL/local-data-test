@@ -2,6 +2,8 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import { createClient } from 'contentful';
 import Image from 'next/image';
+import Cards from '../components/cards';
+import Box from '../components/box';
 
 export async function getStaticProps() {
 
@@ -10,17 +12,19 @@ export async function getStaticProps() {
     accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
   })
 
-  const res = await client.getEntries({ content_type: 'card' })
+  const resCard = await client.getEntries({ content_type: 'card' })
+  const resBox = await client.getEntries({ content_type: 'box' })
 
   return {
     props: {
-      card: res.items
+      card: resCard.items,
+      boxes: resBox.items,
     }
   }
 }
 
-export default function Home( { card }) {
-  console.log(card)
+export default function Home( { card, boxes }) {
+  
   return (
     <div className={styles.container}>
       <Head>
@@ -29,30 +33,9 @@ export default function Home( { card }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1>hello dogs</h1>        
-        {card.map(item => (
-
-          <div key={item.fields.heading}>
-
-            <div>
-              <Image
-                src={`https:${item.fields.picture.fields.file.url}`}
-                alt={item.fields.picture.fields.description}
-                width={ item.fields.picture.fields.file.details.image.width}
-                height={ item.fields.picture.fields.file.details.image.height}
-                layout="responsive"
-              />
-            </div>
-            
-            <div className={styles.card} key={item.fields.heading}>
-              <h2>{item.fields.heading}</h2>
-              <p>{item.fields.blurb}</p>
-            </div>
-
-          </div>
-        ))}
-        
+      <main className={styles.main}>        
+        <Cards card={card}/>  
+        <Box boxes={boxes}/>      
       </main>      
    </div>
   )
